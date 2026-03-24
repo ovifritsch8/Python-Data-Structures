@@ -29,42 +29,54 @@ class RedBlackTree:
 
 
 	def left_left(self, root):
-
 		if (root.right and root.right.is_red):
-			root.left.left.is_red = False
+			# Uncle is red: recolor only, no rotation
+			root.left.is_red = False
+			root.right.is_red = False
+			root.is_red = True
+			return root
 		else:
 			root.is_red = True
 			root.left.is_red = False
-		return self.rotate_left(root)
+			return self.rotate_left(root)
 
 	def left_right(self, root):
 		if (root.right and root.right.is_red):
+			# Uncle is red: recolor only, no rotation
 			root.left.is_red = False
+			root.right.is_red = False
+			root.is_red = True
+			return root
 		else:
 			root.left.right.is_red = False
 			root.is_red = True
-		root.left = self.rotate_right(root.left)
-		return self.rotate_left(root)
+			root.left = self.rotate_right(root.left)
+			return self.rotate_left(root)
 
 	def right_left(self, root):
 		if (root.left and root.left.is_red):
+			# Uncle is red: recolor only, no rotation
 			root.right.is_red = False
+			root.left.is_red = False
+			root.is_red = True
+			return root
 		else:
 			root.right.left.is_red = False
 			root.is_red = True
-
-		root.right = self.rotate_left(root.right)
-		return self.rotate_right(root)
-
-
+			root.right = self.rotate_left(root.right)
+			return self.rotate_right(root)
 
 	def right_right(self, root):
 		if (root.left and root.left.is_red):
-			root.right.right.is_red = False
+			# Uncle is red: recolor only, no rotation
+			root.right.is_red = False
+			root.left.is_red = False
+			root.is_red = True
+			return root
 		else:
 			root.is_red = True
 			root.right.is_red = False
-		return self.rotate_right(root)
+			return self.rotate_right(root)
 
 	"""
 	bottom-up insertion
@@ -126,7 +138,7 @@ class RedBlackTree:
 		return self.find_min(root.left)
 
 	def find_max(self, root):
-		if (not root.right_right):
+		if (not root.right):
 			return root.data
 		return self.find_max(root.right)
 
@@ -220,6 +232,7 @@ class RedBlackTree:
 		def cond2(root):
 			violation = False
 			def helper(root):
+				nonlocal violation
 				if (not root):
 					return 0
 
