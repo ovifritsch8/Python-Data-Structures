@@ -88,10 +88,12 @@ class RedBlackTree:
 					else:
 						root = self.left_right(root)
 					must_rotate = None
+					return root
 				# violation
 				elif (root.is_red and root.left.is_red):
 					# handle violation in the parent. signal parent.
 					must_rotate = "left"
+					return root
 			else:
 				root.right = helper(root.right)
 				if (must_rotate is not None):
@@ -101,10 +103,12 @@ class RedBlackTree:
 					else:
 						root = self.right_right(root)
 					must_rotate = None
+					return root
 				# violation
 				elif (root.is_red and root.right.is_red):
 					# handle violation in the parent. signal parent.
 					must_rotate = "right"
+					return root
 
 			return root
 
@@ -126,59 +130,59 @@ class RedBlackTree:
 			return root.data
 		return self.find_max(root.right)
 
-	def remove(self, data):
+	# def remove(self, data):
 
-		def helper(root):
-			nonlocal data
-			if (not root):
-				return None
-			# found data
-			if (root.data == data):
-				# no children, so just remove it
-				if (not root.left and not root.right):
-					return None
-				# replace with minimum element in right subtree
-				if (root.right):
-					root.data = self.find_min(root.right)
-				# replace with maximum element in left subtree
-				else:
-					root.data = self.find_max(root.right)
+	# 	def helper(root):
+	# 		nonlocal data
+	# 		if (not root):
+	# 			return None
+	# 		# found data
+	# 		if (root.data == data):
+	# 			# no children, so just remove it
+	# 			if (not root.left and not root.right):
+	# 				return None
+	# 			# replace with minimum element in right subtree
+	# 			if (root.right):
+	# 				root.data = self.find_min(root.right)
+	# 			# replace with maximum element in left subtree
+	# 			else:
+	# 				root.data = self.find_max(root.right)
 
 
-			# we have either replaced the deleted value or it is still to be found
-			# in either case, we still must remove a node from the tree (the logical
-			# target or the replacement)
+	# 		# we have either replaced the deleted value or it is still to be found
+	# 		# in either case, we still must remove a node from the tree (the logical
+	# 		# target or the replacement)
 
-			# X is the next node, T is its sibling
-			X = T = None
-			if (data > root.data or (data == root.data and root.right)):
-				X = root.right
-				T = root.left
-			else:
-				X = root.left
-				T = root.right
+	# 		# X is the next node, T is its sibling
+	# 		X = T = None
+	# 		if (data > root.data or (data == root.data and root.right)):
+	# 			X = root.right
+	# 			T = root.left
+	# 		else:
+	# 			X = root.left
+	# 			T = root.right
 
-			# X is nonempty, T may be empty
-			root.is_red = False
-			X.is_red = True
+	# 		# X is nonempty, T may be empty
+	# 		root.is_red = False
+	# 		X.is_red = True
 
-			# first main case: X has two black children
-			if ((not X.left or not X.left.is_red) and (not X.right or not X.right.is_red)):
+	# 		# first main case: X has two black children
+	# 		if ((not X.left or not X.left.is_red) and (not X.right or not X.right.is_red)):
 
-				# T is empty or does not have a red child
-				if (not T or ((not T.left or not T.left.is_red) and (not T.right or not T.right.is_red))):
-					pass
+	# 			# T is empty or does not have a red child
+	# 			if (not T or ((not T.left or not T.left.is_red) and (not T.right or not T.right.is_red))):
+	# 				pass
 
-				# T is nonempty and has a left red child
-				elif (T.left and T.left.is_red):
-					pass
+	# 			# T is nonempty and has a left red child
+	# 			elif (T.left and T.left.is_red):
+	# 				pass
 
-				# T is nonempty and has a right red child
-				else:
-					pass
+	# 			# T is nonempty and has a right red child
+	# 			else:
+	# 				pass
 
-			# second main case: X has at least one red child
-			else:
+	# 		# second main case: X has at least one red child
+	# 		else:
 				
 
 
@@ -187,13 +191,13 @@ class RedBlackTree:
 
 
 
-		if (not self.contains(data)):
-			raise Exception("Cannot remove {} because it does not exist".format(data))
+	# 	if (not self.contains(data)):
+	# 		raise Exception("Cannot remove {} because it does not exist".format(data))
 
-		if (self.root):
-			self.root.is_red = True
-		self.root = helper(self.root)
-		self.size -= 1
+	# 	if (self.root):
+	# 		self.root.is_red = True
+	# 	self.root = helper(self.root)
+	# 	self.size -= 1
 
 
 	"""
@@ -202,7 +206,8 @@ class RedBlackTree:
 	def is_valid(self):
 		# cond1: each red node must not have a red node as a child
 		# cond2: each path from a node to its leaves must have the same number of black nodes
-
+		# cond3: root is always black
+		# cond4: BST properties
 
 		# do a preorder traversal
 		def cond1(root):
@@ -229,7 +234,21 @@ class RedBlackTree:
 			helper(self.root)
 			return not violation
 
-		return cond1(self.root) and cond2(self.root)
+		def cond3():
+			if not self.root:
+				return True
+			return not self.root.is_red
+
+		def cond4(root):
+			if (not root):
+				return True
+			if (root.left and root.left.data > root.data):
+				return False
+			if (root.right and root.right.data < root.data):
+				return False
+			return cond4(root.left) and cond4(root.right)
+	
+		return cond1(self.root) and cond2(self.root) and cond3() and cond4(self.root)
 
 	def contains(self, data):
 		
@@ -258,7 +277,8 @@ if __name__ == "__main__":
 	nums = list(range(-1000, 1000))
 	while (nums):
 		t.insert(nums.pop(random.randint(0, len(nums) - 1)))
+		if not t.is_valid():
+			print("invalid")
+			exit(1)
 
-
-	print(t.is_valid())
-
+	print("valid")
